@@ -866,7 +866,7 @@
       opacity: .82;
     }
 
-    .slide {
+     .slide {
       position: absolute;
       z-index: 1;
       inset: 0;
@@ -875,44 +875,46 @@
       object-fit: contain;
       object-position: center center;
       opacity: 0;
-      filter: blur(7px) saturate(.92) brightness(.96);
-      transform: scale(1.015);
+      filter: blur(0) saturate(.96) brightness(.98);
+      transform: scale(1);
       transition:
-        opacity 2.2s ease,
-        filter 2.4s ease,
-        transform 7.5s ease;
+        opacity 2.5s cubic-bezier(.22,.61,.36,1),
+        filter 2.5s ease,
+        transform 7s cubic-bezier(.22,.61,.36,1);
+      will-change: opacity, transform, filter;
     }
 
     .slide.active {
       opacity: 1;
-      filter: blur(0) saturate(1.03) brightness(1.02);
+      filter: blur(0) saturate(1.04) brightness(1.02);
     }
 
-    .slide.slide-one.active {
-      animation: photoMotionOne 9s ease-in-out infinite alternate;
-    }
-
-    .slide.slide-two.active {
-      animation: photoMotionTwo 9.5s ease-in-out infinite alternate;
-    }
-
+      .slide.slide-one.active,
     .slide.slide-three.active {
-      animation: photoMotionThree 10s ease-in-out infinite alternate;
+      animation: photoZoomIn 7s cubic-bezier(.22,.61,.36,1) forwards;
     }
 
-    @keyframes photoMotionOne {
-      from { transform: scale(1.012) translate3d(-.55%, .42%, 0); }
-      to { transform: scale(1.05) translate3d(.7%, -.48%, 0); }
+    .slide.slide-two.active,
+    .slide.slide-four.active {
+      animation: photoZoomOut 7s cubic-bezier(.22,.61,.36,1) forwards;
     }
 
-    @keyframes photoMotionTwo {
-      from { transform: scale(1.016) translate3d(.62%, -.42%, 0); }
-      to { transform: scale(1.052) translate3d(-.72%, .55%, 0); }
+    @keyframes photoZoomIn {
+      0% {
+        transform: scale(1);
+      }
+      100% {
+        transform: scale(1.28);
+      }
     }
 
-    @keyframes photoMotionThree {
-      from { transform: scale(1.014) translate3d(-.58%, -.38%, 0); }
-      to { transform: scale(1.048) translate3d(.66%, .52%, 0); }
+    @keyframes photoZoomOut {
+      0% {
+        transform: scale(1.28);
+      }
+      100% {
+        transform: scale(1);
+      }
     }
 
     .frame-corner {
@@ -2209,15 +2211,18 @@
             <img class="slide-bg active" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="1.png" alt="" aria-hidden="true">
             <img class="slide-bg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="2.png" alt="" aria-hidden="true">
             <img class="slide-bg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="3.png" alt="" aria-hidden="true">
+            <img class="slide-bg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="4.png" alt="" aria-hidden="true">
             <img class="slide slide-one active" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="1.png" alt="Fotografía 1 de Nicolle" decoding="async">
             <img class="slide slide-two" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="2.png" alt="Fotografía 2 de Nicolle" decoding="async">
             <img class="slide slide-three" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="3.png" alt="Fotografía 3 de Nicolle" decoding="async">
+            <img class="slide slide-four" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="4.png" alt="Fotografía 4 de Nicolle" decoding="async">
             <span class="frame-corner corner-tl" aria-hidden="true"></span>
             <span class="frame-corner corner-tr" aria-hidden="true"></span>
             <span class="frame-corner corner-br" aria-hidden="true"></span>
             <span class="frame-corner corner-bl" aria-hidden="true"></span>
             <div class="slide-dots" aria-hidden="true">
               <span class="slide-dot active"></span>
+              <span class="slide-dot"></span>
               <span class="slide-dot"></span>
               <span class="slide-dot"></span>
             </div>
@@ -2531,14 +2536,21 @@
         if (slideshowTimer || slides.length < 2 || !galleryInView || document.hidden) return;
 
         slideshowTimer = window.setInterval(() => {
-          slides[activeSlide].classList.remove("active");
-          slideBackgrounds[activeSlide]?.classList.remove("active");
-          dots[activeSlide]?.classList.remove("active");
-          activeSlide = (activeSlide + 1) % slides.length;
-          slides[activeSlide].classList.add("active");
-          slideBackgrounds[activeSlide]?.classList.add("active");
-          dots[activeSlide]?.classList.add("active");
-        }, 6500);
+          const previousSlide = activeSlide;
+          const nextSlide = (activeSlide + 1) % slides.length;
+
+          slides[nextSlide].classList.add("active");
+          slideBackgrounds[nextSlide]?.classList.add("active");
+          dots[nextSlide]?.classList.add("active");
+
+          window.setTimeout(() => {
+            slides[previousSlide].classList.remove("active");
+            slideBackgrounds[previousSlide]?.classList.remove("active");
+            dots[previousSlide]?.classList.remove("active");
+          }, 1800);
+
+          activeSlide = nextSlide;
+        }, 7000);
       };
 
       const observeGalleryActivity = () => {
